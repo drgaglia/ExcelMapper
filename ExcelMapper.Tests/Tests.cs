@@ -1398,7 +1398,7 @@ public class Tests
 
         new ExcelMapper().Save(file, products, "Products");
 
-        var productsFetched = new ExcelMapper(file) { SkipBlankCells = false }.Fetch(0, (colnum, worIndex, value) =>
+        var productsFetched = new ExcelMapper(file) { SkipBlankCells = false }.Fetch(0, (colnum, rowIndex, value) =>
         {
             //convert an empty string to null
             if (value is string && value.ToString().Length == 0 && new string[] { "OfferEnd", "Number", "Offer" }.Contains(colnum))
