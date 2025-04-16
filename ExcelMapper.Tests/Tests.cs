@@ -264,7 +264,7 @@ public class Tests
         var file = @"../../../xlsx/Products.xlsx";
         var excel = new ExcelMapper();
 
-        object valueParser(string colname, object val)
+        object valueParser(string colname, int rowIndex, object val)
         {
             return colname switch
             {
@@ -276,7 +276,7 @@ public class Tests
             };
         }
 
-        object valueConverter(string colname, object val)
+        object valueConverter(string colname, int rowIndex, object val)
         {
             return colname switch
             {
@@ -1398,7 +1398,7 @@ public class Tests
 
         new ExcelMapper().Save(file, products, "Products");
 
-        var productsFetched = new ExcelMapper(file) { SkipBlankCells = false }.Fetch(0, (colnum, value) =>
+        var productsFetched = new ExcelMapper(file) { SkipBlankCells = false }.Fetch(0, (colnum, worIndex, value) =>
         {
             //convert an empty string to null
             if (value is string && value.ToString().Length == 0 && new string[] { "OfferEnd", "Number", "Offer" }.Contains(colnum))
@@ -2754,7 +2754,7 @@ public class Tests
 
         var file = "bytesdata.xlsx";
 
-        excel.Save(file, datas, "data", true, (colnum, value) =>
+        excel.Save(file, datas, "data", true, (colnum, rowIndex, value) =>
         {
             if (value != null)
             {
@@ -2770,7 +2770,7 @@ public class Tests
             return value;
         });
 
-        var productsFetched = new ExcelMapper(file).Fetch<BytesData>(0, (colnum, value) =>
+        var productsFetched = new ExcelMapper(file).Fetch<BytesData>(0, (colnum, rowIndex, value) =>
         {
             if (value != null && !string.IsNullOrEmpty(value.ToString()))
             {
@@ -3269,7 +3269,7 @@ public class Tests
     private record NullableValueType(bool? BoolValue, int? IntValue);
     private record ConvertedNullableValueType(string BoolValue, string IntValue);
 
-    private static object NullableValueTypeToStringCellValueConverter(string cellName, object value) =>
+    private static object NullableValueTypeToStringCellValueConverter(string cellName, int rowIndex, object value) =>
         value switch
         {
             int i => i.ToString().PadLeft(2),
@@ -3298,8 +3298,8 @@ public class Tests
         var resultItems = readMapper.Fetch<ConvertedNullableValueType>().ToList();
         foreach (var (input, result) in inputItems.Zip(resultItems))
         {
-            var convertedInputBool = NullableValueTypeToStringCellValueConverter("", input.BoolValue);
-            var convertedInputInt = NullableValueTypeToStringCellValueConverter("", input.IntValue);
+            var convertedInputBool = NullableValueTypeToStringCellValueConverter("", 0, input.BoolValue);
+            var convertedInputInt = NullableValueTypeToStringCellValueConverter("", 0, input.IntValue);
             Assert.That(result.BoolValue, Is.EqualTo(convertedInputBool));
             Assert.That(result.IntValue, Is.EqualTo(convertedInputInt));
         }
